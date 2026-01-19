@@ -1,0 +1,14 @@
+{
+  "dice_types": [
+    {"id": "R", "name": "Fuoco", "color": "#FF5252"},
+    {"id": "B", "name": "Acqua", "color": "#448AFF"},
+    {"id": "G", "name": "Terra", "color": "#69F0AE"},
+    {"id": "Y", "name": "Elettricita", "color": "#FFFF00"}
+  ],
+  "distribution": {
+    "1": "K",
+    "2-3": "PURE",
+    "4-6": "HYBRID"
+  },
+  "notes": "K = Jolly/Ombra. Pure = Colore del dado. Hybrid = Colore casuale tra gli altri 3."
+}

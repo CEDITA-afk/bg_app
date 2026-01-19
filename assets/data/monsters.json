@@ -1,0 +1,20 @@
+[
+  {
+    "id": "dummy",
+    "name": "Manichino di Paglia",
+    "hp": 30,
+    "defense": 0
+  },
+  {
+    "id": "golem",
+    "name": "Golem di Ferro",
+    "hp": 50,
+    "defense": 1
+  },
+  {
+    "id": "boss_hydra",
+    "name": "Idra della Palude",
+    "hp": 100,
+    "defense": 0
+  }
+]

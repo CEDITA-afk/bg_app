@@ -1,0 +1,131 @@
+[
+  {
+    "id": "base_dardo",
+    "name": "Dardo Incandescente",
+    "description": "L'attacco base affidabile. Più forte se il nemico brucia.",
+    "cost_main": {"R": 1, "ANY": 1},
+    "effects_main": [
+      {"type": "damage", "value": 2},
+      {"type": "conditional_damage", "condition": "target_has_incendiato", "value": 1}
+    ]
+  },
+  {
+    "id": "base_palla",
+    "name": "Palla di Fuoco",
+    "description": "Un'esplosione che consuma molte risorse per colpire un gruppo.",
+    "cost_main": {"R": 1, "ANY": 2},
+    "effects_main": [
+      {"type": "damage", "value": 3},
+      {"type": "apply_status", "status": "incendiato", "stacks": 1}
+    ]
+  },
+  {
+    "id": "base_lancia",
+    "name": "Lancia del Drago",
+    "description": "Un colpo preciso e letale che richiede purezza di mana.",
+    "cost_main": {"R": 2},
+    "effects_main": [
+      {"type": "damage", "value": 5}
+    ]
+  },
+  {
+    "id": "base_supernova",
+    "name": "SUPERNOVA (Ultimate)",
+    "description": "La fine di ogni cosa. Distruzione globale.",
+    "cost_main": {"R": 3},
+    "effects_main": [
+      {"type": "damage", "value": 6},
+      {"type": "apply_status", "status": "incendiato", "stacks": 3}
+    ]
+  },
+  {
+    "id": "cenere_nube",
+    "name": "Nube Tossica (Cenere)",
+    "description": "Soffoca il nemico e inizia il logoramento.",
+    "cost_main": {"R": 1, "G": 1},
+    "effects_main": [
+      {"type": "apply_status", "status": "incendiato", "stacks": 2},
+      {"type": "apply_status", "status": "soffocare", "stacks": 1}
+    ]
+  },
+  {
+    "id": "cenere_virale",
+    "name": "Combustione Virale (Cenere)",
+    "description": "Diffonde le fiamme dal bersaglio ai vicini.",
+    "cost_main": {"R": 1, "G": 1, "ANY": 1},
+    "effects_main": [
+      {"type": "damage", "value": 2},
+      {"type": "spread_status", "status": "incendiato"}
+    ]
+  },
+  {
+    "id": "cenere_cataclisma",
+    "name": "Cataclisma di Cenere (Cenere)",
+    "description": "Esplosione massiva di veleno e fiamme.",
+    "cost_main": {"R": 2, "G": 1},
+    "effects_main": [
+      {"type": "damage", "value": 3},
+      {"type": "apply_status", "status": "incendiato", "stacks": 3},
+      {"type": "apply_status", "status": "soffocare", "stacks": 2}
+    ]
+  },
+  {
+    "id": "magma_faglia",
+    "name": "Faglia Sismica (Magma)",
+    "description": "Danneggia e spinge via il nemico.",
+    "cost_main": {"R": 1, "Y": 1},
+    "effects_main": [
+      {"type": "damage", "value": 2},
+      {"type": "push", "value": 2}
+    ]
+  },
+  {
+    "id": "magma_armatura",
+    "name": "Armatura di Ossidiana (Magma)",
+    "description": "Ti protegge e brucia chi ti tocca.",
+    "cost_main": {"R": 1, "Y": 1, "ANY": 1},
+    "effects_main": [
+      {"type": "apply_status", "status": "scudo", "stacks": 3},
+      {"type": "damage_reaction", "value": 2}
+    ]
+  },
+  {
+    "id": "magma_eruzione",
+    "name": "Eruzione Vulcanica (Magma)",
+    "description": "Crea un vulcano attivo sul campo.",
+    "cost_main": {"R": 2, "Y": 1},
+    "effects_main": [
+      {"type": "damage", "value": 4},
+      {"type": "apply_status", "status": "terreno_arso", "stacks": 1}
+    ]
+  },
+  {
+    "id": "plasma_passo",
+    "name": "Passo di Brace (Plasma)",
+    "description": "Teletrasporto aggressivo.",
+    "cost_main": {"R": 1, "B": 1},
+    "effects_main": [
+      {"type": "teleport", "range": 3},
+      {"type": "damage_aoe_arrival", "value": 1}
+    ]
+  },
+  {
+    "id": "plasma_raggio",
+    "name": "Raggio Focalizzato (Plasma)",
+    "description": "Un raggio preciso che fa esplodere i nemici in fiamme.",
+    "cost_main": {"R": 1, "B": 1, "ANY": 1},
+    "effects_main": [
+      {"type": "damage", "value": 3},
+      {"type": "detonate_incendiato", "bonus": 2}
+    ]
+  },
+  {
+    "id": "plasma_lama",
+    "name": "Lama dell'Eclissi (Plasma)",
+    "description": "Attacco in mischia devastante ad alto rischio.",
+    "cost_main": {"R": 2, "B": 1},
+    "effects_main": [
+      {"type": "damage", "value": 7}
+    ]
+  }
+]

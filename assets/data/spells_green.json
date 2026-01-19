@@ -1,0 +1,133 @@
+[
+  {
+    "id": "base_spina",
+    "name": "Spina Vitale",
+    "description": "Attacco base che ruba vitalità.",
+    "cost_main": {"G": 1, "ANY": 1},
+    "effects_main": [
+      {"type": "damage", "value": 1},
+      {"type": "heal_self", "value": 1}
+    ]
+  },
+  {
+    "id": "base_viticci",
+    "name": "Viticci Strangolatori",
+    "description": "Blocca i nemici e li stritola.",
+    "cost_main": {"G": 1, "ANY": 2},
+    "effects_main": [
+      {"type": "damage", "value": 2},
+      {"type": "apply_status", "status": "radicato", "stacks": 1}
+    ]
+  },
+  {
+    "id": "base_tocco",
+    "name": "Tocco della Decomposizione",
+    "description": "Un tocco letale che marcisce la carne.",
+    "cost_main": {"G": 2},
+    "effects_main": [
+      {"type": "damage", "value": 4},
+      {"type": "apply_status", "status": "infestato", "stacks": 1}
+    ]
+  },
+  {
+    "id": "base_risveglio",
+    "name": "RISVEGLIO DELLA FORESTA (Ult)",
+    "description": "La natura reclama tutto. Cura di massa e radici globali.",
+    "cost_main": {"G": 3},
+    "effects_main": [
+      {"type": "heal_aoe", "value": 4, "range": 5},
+      {"type": "apply_status_aoe", "status": "radicato", "stacks": 2, "range": 5}
+    ]
+  },
+  {
+    "id": "pred_rovi",
+    "name": "Rovi Vampirici (Predazione)",
+    "description": "Danneggia e converte il sangue in cura.",
+    "cost_main": {"G": 1, "R": 1},
+    "effects_main": [
+      {"type": "damage", "value": 2},
+      {"type": "heal_self", "value": 2}
+    ]
+  },
+  {
+    "id": "pred_parassita",
+    "name": "Parassita Carnivoro (Predazione)",
+    "description": "Infetta il bersaglio rendendolo cibo per il gruppo.",
+    "cost_main": {"G": 1, "R": 1, "ANY": 1},
+    "effects_main": [
+      {"type": "damage", "value": 2},
+      {"type": "apply_status", "status": "infestato", "stacks": 2}
+    ]
+  },
+  {
+    "id": "pred_banchetto",
+    "name": "Banchetto Atavico (Predazione)",
+    "description": "Sbrana un nemico infestato per una cura massiccia.",
+    "cost_main": {"G": 2, "R": 1},
+    "effects_main": [
+      {"type": "damage", "value": 4},
+      {"type": "conditional_heal", "condition": "target_has_infestato", "value": 4}
+    ]
+  },
+  {
+    "id": "foresta_pelle",
+    "name": "Pelle di Corteccia (Foresta)",
+    "description": "Indurisce la pelle e restituisce i colpi.",
+    "cost_main": {"G": 1, "Y": 1},
+    "effects_main": [
+      {"type": "apply_status", "status": "scudo", "stacks": 2},
+      {"type": "apply_status", "status": "spine", "stacks": 2}
+    ]
+  },
+  {
+    "id": "foresta_muro",
+    "name": "Barriera Spinoza (Foresta)",
+    "description": "Crea una zona pericolosa da attraversare.",
+    "cost_main": {"G": 1, "Y": 1, "ANY": 1},
+    "effects_main": [
+      {"type": "create_terrain", "terrain": "rovi", "duration": 2},
+      {"type": "push", "value": 2}
+    ]
+  },
+  {
+    "id": "foresta_colosso",
+    "name": "Colosso Vivente (Foresta)",
+    "description": "Diventi un avatar indistruttibile.",
+    "cost_main": {"G": 2, "Y": 1},
+    "effects_main": [
+      {"type": "apply_status", "status": "scudo", "stacks": 5},
+      {"type": "apply_status", "status": "spine", "stacks": 3},
+      {"type": "taunt", "value": 1}
+    ]
+  },
+  {
+    "id": "germoglio_fiore",
+    "name": "Fiore Vitale (Germoglio)",
+    "description": "Fa sbocciare una cura per un alleato.",
+    "cost_main": {"G": 1, "W": 1},
+    "effects_main": [
+      {"type": "heal_target", "value": 3},
+      {"type": "remove_status", "count": 1}
+    ]
+  },
+  {
+    "id": "germoglio_linfa",
+    "name": "Linfa Antica (Germoglio)",
+    "description": "Potenzia un alleato rendendolo più resistente.",
+    "cost_main": {"G": 1, "W": 1, "ANY": 1},
+    "effects_main": [
+      {"type": "apply_buff", "buff": "rigenerazione", "stacks": 2},
+      {"type": "apply_status", "status": "scudo", "stacks": 2}
+    ]
+  },
+  {
+    "id": "germoglio_purificazione",
+    "name": "Purificazione Radicale (Germoglio)",
+    "description": "Rimuove ogni male e ripristina la vita.",
+    "cost_main": {"G": 2, "W": 1},
+    "effects_main": [
+      {"type": "heal_aoe", "value": 2, "range": 3},
+      {"type": "remove_status_aoe", "count": 2, "range": 3}
+    ]
+  }
+]
