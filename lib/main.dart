@@ -69,16 +69,17 @@ class ArenaScreen extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             color: Colors.black,
             child: ElevatedButton.icon(
-              onPressed: game.wizards.isNotEmpty ? () => game.resetTurn() : null,
-              icon: const Icon(Icons.skip_next),
-              label: Text(game.wizards.isEmpty 
-                  ? "AGGIUNGI EROI" 
-                  : "FINE TURNO: ${game.wizards[game.activeWizardIndex].className}"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange[900],
-                minimumSize: const Size(double.infinity, 45)
-              ),
+             // MODIFICA: Chiamata a endPlayerTurn invece di resetTurn
+                onPressed: game.wizards.isNotEmpty ? () => game.endPlayerTurn() : null, 
+                icon: const Icon(Icons.skip_next),
+                label: Text(game.wizards.isEmpty 
+                    ? "AGGIUNGI EROI" 
+                    : "FINE TURNO: ${game.wizards[game.activeWizardIndex].className}"),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange[900],
+                    minimumSize: const Size(double.infinity, 45)
             ),
+           ),
           )
         ],
       ),

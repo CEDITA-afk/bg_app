@@ -1,17 +1,21 @@
+import 'dart:math';
+
 class CombatEngine {
-  // Gestisce il calcolo del danno considerando la difesa
-  static int calculateDamage(int value, int defense, {bool ignoreDef = false}) {
-    if (ignoreDef) return value;
-    int finalDmg = value - defense;
-    return finalDmg > 0 ? finalDmg : 0;
+  /// Calcola il danno finale sottraendo la difesa (Armatura)
+  /// Se il danno è inferiore alla difesa, il risultato è 0 (non negativo)
+  static int calculateDamage(int baseDamage, int defense) {
+    // Il danno non può scendere sotto lo zero
+    return max(0, baseDamage - defense);
   }
 
-  // Logica per l'effetto detonate_incendiato
-  static int resolveDetonation(Map<String, int> statuses, int bonus) {
-    int stacks = statuses['incendiato'] ?? 0;
-    if (stacks > 0) {
-      return stacks + bonus;
-    }
-    return 0;
+  /// Calcola i danni da status (es. Bruciatura o Tempesta)
+  /// Questi danni solitamente ignorano la difesa (Danno Diretto)
+  static int calculateStatusDamage(int stacks) {
+    return stacks;
   }
+  
+  /// In futuro qui potremo aggiungere logiche per:
+  /// - Critici (se implementati)
+  /// - Resistenze elementali specifiche
+  /// - Bonus da Posizionamento (Fase 4: Tactical Grid)
 }

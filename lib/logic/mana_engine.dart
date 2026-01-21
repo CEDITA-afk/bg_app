@@ -1,5 +1,5 @@
 class ManaEngine {
-  // Converte la lista di dadi ['R', 'R', 'G'] in una mappa {'R': 2, 'G': 1}
+  /// Converte una lista di dadi in una mappa di conteggio (Pool)
   static Map<String, int> getPoolFromDice(List<String> dice) {
     Map<String, int> pool = {};
     for (var die in dice) {
@@ -8,21 +8,39 @@ class ManaEngine {
     return pool;
   }
 
-  // Traduzione fedele di canAfford
-  static bool canAfford(List<String> savedDice, Map<String, int> cost) {
-    Map<String, int> pool = getPoolFromDice(savedDice);
-    
-    // 1. Controlla e sottrae i costi specifici
+  /// Verifica se il pool di dadi copre il costo richiesto (Regolamento 2.1)
+  static bool canAfford(List<String> currentDice, Map<String, int> cost) {
+    Map<String, int> pool = getPoolFromDice(currentDice);
+    int wildcards = pool['K'] ?? 0; // Riserva di Jolly
+    pool.remove('K');
+
+    // 1. Verifica e consuma mana per i costi specifici (R, B, G, Y)
     for (var entry in cost.entries) {
-      if (entry.key == 'ANY') continue;
-      if ((pool[entry.key] ?? 0) < entry.value) return false;
-      pool[entry.key] = pool[entry.key]! - entry.value;
+      String color = entry.key;
+      int amount = entry.value;
+      if (color == 'ANY') continue;
+
+      int available = pool[color] ?? 0;
+      if (available >= amount) {
+        pool[color] = available - amount;
+      } else {
+        // Se non basta il colore puro, usa i Jolly disponibili
+        int needed = amount - available;
+        if (wildcards >= needed) {
+          pool[color] = 0;
+          wildcards -= needed;
+        } else {
+          return false; // Mana insufficiente anche con i Jolly
+        }
+      }
     }
     
-    // 2. Controlla se i dadi rimanenti coprono il costo ANY
+    // 2. Verifica se i dadi rimanenti (Normali + Jolly) coprono il costo ANY
     if (cost.containsKey('ANY')) {
-      int remainingDice = pool.values.fold(0, (sum, count) => sum + count);
-      if (remainingDice < cost['ANY']!) return false;
+      int remainingNormalDice = pool.values.fold(0, (sum, count) => sum + count);
+      if ((remainingNormalDice + wildcards) < cost['ANY']!) {
+        return false;
+      }
     }
     
     return true;

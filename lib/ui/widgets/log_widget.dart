@@ -10,28 +10,25 @@ class LogWidget extends StatelessWidget {
     final game = Provider.of<GameProvider>(context);
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.black87,
-        border: Border(bottom: BorderSide(color: Colors.white10)),
-      ),
+      width: double.infinity,
+      color: Colors.black.withOpacity(0.5),
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: game.logs.length,
         itemBuilder: (context, index) {
           final log = game.logs[index];
-          final String type = log['type'] ?? 'INFO';
-          final String message = log['msg'] ?? '';
-
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 1),
-            child: Text(
-              "> $message",
-              style: TextStyle(
-                color: _getLogColor(type),
-                fontFamily: 'monospace',
-                fontSize: 13,
-                fontWeight: type == 'DMG' ? FontWeight.bold : FontWeight.normal,
-              ),
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("[${log['type']}] ", 
+                  style: TextStyle(color: _getLogColor(log['type']!), fontSize: 10, fontWeight: FontWeight.bold)),
+                Expanded(
+                  child: Text(log['msg']!, 
+                    style: const TextStyle(color: Colors.white70, fontSize: 10)),
+                ),
+              ],
             ),
           );
         },
@@ -39,21 +36,13 @@ class LogWidget extends StatelessWidget {
     );
   }
 
-  // Funzione per determinare il colore del testo come nel tuo progetto originale
   Color _getLogColor(String type) {
-    switch (type) {
-      case 'DMG':
-        return Colors.redAccent;
-      case 'HEAL':
-        return Colors.greenAccent;
-      case 'STATUS':
-        return Colors.orangeAccent;
-      case 'ENERGY':
-        return Colors.lightBlueAccent;
-      case 'ERROR':
-        return Colors.deepOrange;
-      default:
-        return Colors.white70;
+    switch(type) {
+      case 'DMG': return Colors.redAccent;
+      case 'ENERGY': return Colors.yellowAccent;
+      case 'OVERLORD': return Colors.purpleAccent;
+      case 'ROUND': return Colors.blueAccent;
+      default: return Colors.grey;
     }
   }
 }

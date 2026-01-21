@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'spell.dart';
 
 class Wizard {
@@ -6,20 +7,25 @@ class Wizard {
 
   int hp = 12;
   final int maxHp = 12;
-  int stamina = 2;
-  final int maxStamina = 2;
+  
+  // Energia: parte da 2 e non ha più un tetto visuale (es. 2/2)
+  int stamina = 2; 
 
+  int actions = 2;
+  final int maxActions = 2;
+
+  bool hasRolledThisTurn = false;
   bool get isSpirit => hp <= 0;
 
-  List<String> currentRoll = [];
-  List<String> savedDice = []; // Accumulo
-  List<Spell> spells = [];
-  List<String> selectedDiceForRoll = [];
+  List<String> currentRoll = [];        
+  List<String> savedDice = [];         
+  List<String> selectedDiceForRoll = []; 
 
-  int get maxRollSlots {
-    if (isSpirit) return 1;
-    return (savedDice.isNotEmpty) ? 4 : 3;
-  }
+  List<Spell> spells = [];
+  Point<int> position = const Point(0, 0);
 
   Wizard({required this.className, required this.jsonPath});
+
+  // Un eroe vivo lancia sempre 3 dadi (che si aggiungono a quelli salvati)
+  int get diceToRollLimit => isSpirit ? 1 : 3;
 }

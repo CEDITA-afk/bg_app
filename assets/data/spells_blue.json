@@ -1,0 +1,89 @@
+[
+  {
+    "id": "scheggia_gelida",
+    "name": "Scheggia Gelida",
+    "description": "1 Danno + Bagnato. Kicker (+B): Applica Congelato invece di Bagnato.",
+    "cost_main": { "B": 1 },
+    "effects_main": [
+      { "type": "damage", "value": 1 },
+      { "type": "apply_status", "status": "bagnato", "stacks": 1 }
+    ],
+    "kicker": {
+      "cost_add": { "B": 1 },
+      "description": "Applica Congelato invece di Bagnato.",
+      "effects_add": [
+        { "type": "remove_status", "status": "bagnato" },
+        { "type": "apply_status", "status": "congelato", "stacks": 1 }
+      ]
+    }
+  },
+  {
+    "id": "velo_d_acqua",
+    "name": "Velo d'Acqua",
+    "description": "Rimuovi Bruciato/Acido da alleato O dai SHIELD 2.",
+    "cost_main": { "B": 1 },
+    "effects_main": [
+      { "type": "remove_status", "status": "incendiato" },
+      { "type": "apply_status", "status": "scudo", "stacks": 2 }
+    ]
+  },
+  {
+    "id": "glaciazione",
+    "name": "Glaciazione",
+    "description": "2 Danni. Se il bersaglio   Bagnato, diventa Congelato.",
+    "cost_main": { "B": 2 },
+    "effects_main": [
+      { "type": "damage", "value": 2 },
+      { "type": "conditional_status", "condition": "target_has_bagnato", "status": "congelato" }
+    ]
+  },
+  {
+    "id": "torrente",
+    "name": "Torrente",
+    "description": "3 Danni a tutti in Linea 3. PUSH 2 su tutti i colpiti.",
+    "cost_main": { "B": 2 },
+    "effects_main": [
+      { "type": "damage", "value": 3 },
+      { "type": "push", "value": 2 }
+    ]
+  },
+  {
+    "id": "marea",
+    "name": "Marea",
+    "description": "PULL 3 su un alleato o nemico (Sposta verso di te).",
+    "cost_main": { "B": 1, "ANY": 1 },
+    "effects_main": [
+      { "type": "pull", "value": 3 }
+    ]
+  },
+  {
+    "id": "cryostasi",
+    "name": "Cryostasi",
+    "description": "Diventi Invulnerabile e Congelato fino al prossimo turno. Recuperi 2 HP.",
+    "cost_main": { "B": 1, "ANY": 1 },
+    "effects_main": [
+      { "type": "apply_status", "status": "invulnerabile", "stacks": 1 },
+      { "type": "apply_status", "status": "congelato", "stacks": 1 },
+      { "type": "heal_self", "value": 2 }
+    ]
+  },
+  {
+    "id": "blizzard",
+    "name": "Blizzard",
+    "description": "1 Danno a tutti in Area 3x3. L'area diventa Terreno Difficile.",
+    "cost_main": { "B": 2, "ANY": 1 },
+    "effects_main": [
+      { "type": "damage", "value": 1 },
+      { "type": "create_terrain", "terrain": "difficile", "duration": 2 }
+    ]
+  },
+  {
+    "id": "era_glaciale",
+    "name": "Era Glaciale",
+    "description": "Applica Congelato a TUTTI i nemici.",
+    "cost_main": { "B": 3 },
+    "effects_main": [
+      { "type": "apply_status_all_enemies", "status": "congelato", "stacks": 1 }
+    ]
+  }
+]

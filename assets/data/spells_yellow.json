@@ -1,0 +1,88 @@
+[
+  {
+    "id": "scossa",
+    "name": "Scossa",
+    "description": "1 Danno + Conduttore. Kicker (+Y): Danno diventa 2 e PUSH 1.",
+    "cost_main": { "Y": 1 },
+    "effects_main": [
+      { "type": "damage", "value": 1 },
+      { "type": "apply_status", "status": "conduttore", "stacks": 1 }
+    ],
+    "kicker": {
+      "cost_add": { "Y": 1 },
+      "description": "Danno diventa 2 e PUSH 1.",
+      "effects_add": [
+        { "type": "damage", "value": 1 },
+        { "type": "push", "value": 1 }
+      ]
+    }
+  },
+  {
+    "id": "scatto_fulmineo",
+    "name": "Scatto Fulmineo",
+    "description": "Muovi di 5 caselle attraverso i nemici. Infliggi 1 Danno a chi attraversi.",
+    "cost_main": { "Y": 1 },
+    "effects_main": [
+      { "type": "teleport", "range": 5 },
+      { "type": "damage_through", "value": 1 }
+    ]
+  },
+  {
+    "id": "fulmine_a_catena",
+    "name": "Fulmine a Catena",
+    "description": "3 Danni. Rimbalza su 2 nemici entro 3 caselle.",
+    "cost_main": { "Y": 2 },
+    "effects_main": [
+      { "type": "damage", "value": 3 },
+      { "type": "chain_damage", "targets": 2, "value": 2 }
+    ]
+  },
+  {
+    "id": "teletrasporto",
+    "name": "Teletrasporto",
+    "description": "Sposta un Alleato/Nemico/Te stesso in una casella vuota entro range 5.",
+    "cost_main": { "Y": 1, "ANY": 1 },
+    "effects_main": [
+      { "type": "teleport_target", "range": 5 }
+    ]
+  },
+  {
+    "id": "carica_statica",
+    "name": "Carica Statica",
+    "description": "Prossimo Incantesimo lanciato fa +2 Danni. Recuperi 1 Stamina.",
+    "cost_main": { "Y": 1, "ANY": 1 },
+    "effects_main": [
+      { "type": "apply_status", "status": "carica", "stacks": 1 },
+      { "type": "restore_stamina", "value": 1 }
+    ]
+  },
+  {
+    "id": "martello_di_thor",
+    "name": "Martello di Thor",
+    "description": "5 Danni a bersaglio singolo. Applica STUN.",
+    "cost_main": { "Y": 2, "ANY": 1 },
+    "effects_main": [
+      { "type": "damage", "value": 5 },
+      { "type": "apply_status", "status": "stun", "stacks": 1 }
+    ]
+  },
+  {
+    "id": "supercarica",
+    "name": "Supercarica",
+    "description": "Recuperi tutte le Stamina. Le prossime 2 magie costano 0.",
+    "cost_main": { "Y": 3 },
+    "effects_main": [
+      { "type": "restore_stamina_full" },
+      { "type": "apply_status", "status": "supercarica", "stacks": 2 }
+    ]
+  },
+  {
+    "id": "laser_orbitale",
+    "name": "Laser Orbitale",
+    "description": "Marchia una casella. A fine round: 8 Danni a chi   nella casella.",
+    "cost_main": { "Y": 2, "R": 1 },
+    "effects_main": [
+      { "type": "mark_tile", "damage_delayed": 8 }
+    ]
+  }
+]

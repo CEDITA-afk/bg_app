@@ -3,180 +3,130 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/wizard.dart';
+import '../models/monster.dart';
 import '../models/spell.dart';
+import '../logic/dice_engine.dart';
 import '../logic/mana_engine.dart';
 import '../logic/combat_engine.dart';
 
+enum GamePhase { playerRoll, playerActions, overlordReaction, maintenance }
+
 class GameProvider extends ChangeNotifier {
-  // --- CONFIGURAZIONE CLASSI ---
+  GamePhase currentPhase = GamePhase.playerRoll;
+  int activeWizardIndex = 0;
+  int overlordTokens = 0;
+  List<Map<String, String>> logs = [];
+  Monster boss = Monster(); 
+  List<Wizard> wizards = [];
+
   final List<Map<String, String>> availableClasses = [
     {"name": "Piromante (Rosso)", "file": "spells_red.json"},
     {"name": "Biomante (Verde)", "file": "spells_green.json"},
+    {"name": "Idromante (Blu)", "file": "spells_blue.json"},
+    {"name": "Elettromante (Giallo)", "file": "spells_yellow.json"},
   ];
 
-  // --- STATO OVERLORD (Fase 3: Scambio Equivalente) ---
-  Map<String, int> overlordManaPool = {'R': 0, 'B': 0, 'G': 0, 'Y': 0, 'K': 0};
-
-  // --- STATO DEL MOSTRO ---
-  String monsterName = "Caricamento...";
-  int monsterHp = 0;
-  int monsterMaxHp = 0;
-  int monsterDefense = 0;
-  Map<String, int> monsterStatuses = {};
-
-  // --- STATO DEI GIOCATORI ---
-  List<Wizard> wizards = [];
-  List<Map<String, String>> logs = [];
-  
-  // Indice del giocatore che sta agendo
-  int activeWizardIndex = 0;
-
-  // --- INIZIALIZZAZIONE ---
   Future<void> initializeGame() async {
-    try {
-      final String response = await rootBundle.loadString('assets/data/monsters.json');
-      final List<dynamic> data = json.decode(response);
-      
-      final monsterData = data[1]; 
-      monsterName = monsterData['name'];
-      monsterMaxHp = monsterData['hp'];
-      monsterHp = monsterData['hp'];
-      monsterDefense = monsterData['defense'];
-      
-      overlordManaPool = {'R': 0, 'B': 0, 'G': 0, 'Y': 0, 'K': 0};
-      wizards = [];
-      activeWizardIndex = 0;
-      monsterStatuses = {};
-      logs = [{"type": "INFO", "msg": "⚔️ Mana Echo v2.0: Modalità Turni Sequenziali."}];
-      notifyListeners();
-    } catch (e) {
-      debugPrint("Errore inizializzazione: $e");
-      addLog("ERROR", "❌ Errore nel caricamento dei dati iniziali.");
-    }
+    boss = Monster();
+    wizards = [];
+    activeWizardIndex = 0;
+    overlordTokens = 0;
+    currentPhase = GamePhase.playerRoll;
+    logs = [{"type": "INFO", "msg": "⚔️ Mana Echo v2.0: Test Arena Pronto."}];
+    notifyListeners();
   }
 
-  Future<void> addWizard(String className, String fileName) async {
-    final String path = "assets/data/$fileName"; 
-    final wiz = Wizard(className: className, jsonPath: path);
-
-    try {
-      final String response = await rootBundle.loadString(path);
-      final List<dynamic> data = json.decode(response);
-      
-      wiz.spells = data.map((s) => Spell.fromJson(s)).toList();
-      wizards.add(wiz);
-      
-      addLog("INFO", "✨ $className si è unito alla battaglia!");
-      notifyListeners();
-    } catch (e) {
-      addLog("ERROR", "❌ Impossibile caricare l'eroe: $path");
-    }
+ Future<void> addWizard(String className, String fileName) async {
+  final wiz = Wizard(className: className, jsonPath: "assets/data/$fileName");
+  try {
+    debugPrint("Caricamento file: ${wiz.jsonPath}"); // Debug log
+    final String response = await rootBundle.loadString(wiz.jsonPath);
+    final List<dynamic> data = json.decode(response);
+    
+    wiz.spells = data.map((s) => Spell.fromJson(s)).toList();
+    wizards.add(wiz);
+    
+    addLog("INFO", "✨ $className pronto.");
+    notifyListeners();
+  } catch (e) {
+    debugPrint("ERRORE CARICAMENTO: $e"); // Questo ti dirà il problema esatto
+    addLog("ERROR", "Errore caricamento eroe ($className).");
   }
+ }
 
-  // --- LOGICA DIRTY DICE (Regolamento 2.1) ---
-  String _rollDirtyDie(String dieColor) {
-    final random = Random();
-    int result = random.nextInt(6) + 1; // D6: 1-6
-
-    if (result == 1) {
-      return 'K'; // JOLLY/OMBRA (Nero)
-    } else if (result <= 3) {
-      return dieColor; // PURO
-    } else {
-      // IBRIDO: un colore elementale diverso
-      List<String> others = ['R', 'B', 'G', 'Y'];
-      others.remove(dieColor);
-      return others[random.nextInt(others.length)];
-    }
-  }
-
-  void toggleDiceSelection(int wizIndex, String color) {
-    if (wizIndex != activeWizardIndex) return; // Solo chi è di turno agisce
-    final wiz = wizards[wizIndex];
-    int maxSlots = wiz.isSpirit ? 1 : (wiz.savedDice.isNotEmpty ? 4 : 3);
-    int available = maxSlots - wiz.savedDice.length;
+  // --- LOGICA DADI ---
+  void toggleDiceSelection(int wizIdx, String color) {
+    if (wizIdx != activeWizardIndex || currentPhase != GamePhase.playerRoll) return;
+    final wiz = wizards[wizIdx];
+    int limit = wiz.diceToRollLimit;
 
     if (wiz.selectedDiceForRoll.contains(color)) {
       wiz.selectedDiceForRoll.remove(color);
-    } else if (wiz.selectedDiceForRoll.length < available) {
+    } else if (wiz.selectedDiceForRoll.length < limit) {
       wiz.selectedDiceForRoll.add(color);
     }
     notifyListeners();
   }
 
-  void rollDice(int wizIndex) {
-    if (wizIndex != activeWizardIndex) return;
-    final wiz = wizards[wizIndex];
+  void rollDice(int wizIdx) {
+    if (wizIdx != activeWizardIndex || currentPhase != GamePhase.playerRoll) return;
+    final wiz = wizards[wizIdx];
     if (wiz.selectedDiceForRoll.isEmpty) return;
 
-    wiz.currentRoll = wiz.selectedDiceForRoll.map((c) => _rollDirtyDie(c)).toList();
+    wiz.currentRoll = wiz.selectedDiceForRoll.map((c) => DiceEngine.rollDirty(c)).toList();
     wiz.selectedDiceForRoll.clear();
-    addLog("INFO", "${wiz.className} ha lanciato i dadi.");
+    currentPhase = GamePhase.playerActions;
+    addLog("INFO", "${wiz.className} lancia ${wiz.currentRoll.length} dadi.");
     notifyListeners();
   }
 
-  // --- GESTIONE STAMINA E TURNO ---
-  
-  // METODO MANCANTE: Gestisce il passaggio tra i giocatori
-  void endPlayerTurn() {
-    if (wizards.isEmpty) return;
-    
-    addLog("INFO", "⌛ ${wizards[activeWizardIndex].className} termina il turno.");
-
-    if (activeWizardIndex >= wizards.length - 1) {
-      // Se era l'ultimo giocatore, resetta il round globale
-      activeWizardIndex = 0;
-      resetTurn();
-    } else {
-      // Passa al prossimo giocatore
-      activeWizardIndex++;
-      addLog("INFO", "▶️ Tocca a ${wizards[activeWizardIndex].className}.");
+  // --- ENERGIA E CONCENTRAZIONE ---
+  void saveDie(int wizIdx, int dieIdx) {
+    if (wizIdx != activeWizardIndex) return;
+    final wiz = wizards[wizIdx];
+    if (wiz.stamina >= 1) {
+      wiz.savedDice.add(wiz.currentRoll.removeAt(dieIdx));
+      wiz.stamina -= 1;
+      notifyListeners();
     }
+  }
+
+  void convertDieToEnergy(int wizIdx, int dieIdx) {
+    if (wizIdx != activeWizardIndex) return;
+    final wiz = wizards[wizIdx];
+    wiz.currentRoll.removeAt(dieIdx);
+    wiz.stamina += 1; // Accumulo senza limite 2/2
+    addLog("STAMINA", "+1⚡ Energia.");
     notifyListeners();
   }
 
-  void resetTurn() {
-    // Risoluzione status Boss
-    if ((monsterStatuses['incendiato'] ?? 0) > 0) {
-      monsterHp -= monsterStatuses['incendiato']!;
-      monsterStatuses['incendiato'] = monsterStatuses['incendiato']! - 1;
-    }
-
-    // Ripristino globale Stamina per il nuovo Round
-    for (var wiz in wizards) {
-      wiz.stamina = wiz.isSpirit ? 1 : 2; //
-      wiz.currentRoll = [];
-    }
-    addLog("INFO", "🔄 Nuovo Round iniziato.");
+  void unsaveDie(int wizIdx, int dieIdx) {
+    if (wizIdx != activeWizardIndex) return;
+    final wiz = wizards[wizIdx];
+    wiz.currentRoll.add(wiz.savedDice.removeAt(dieIdx));
     notifyListeners();
   }
 
-  void saveDie(int wizIndex, int dieIndex) {
-    if (wizIndex != activeWizardIndex) return;
-    final wiz = wizards[wizIndex];
-    if (wiz.stamina < 1) return;
-
-    wiz.savedDice.add(wiz.currentRoll.removeAt(dieIndex));
-    wiz.stamina -= 1; //
-    notifyListeners();
-  }
-
-  // --- COMBATTIMENTO ---
-  bool canWizardCast(int wizIndex, Spell spell) {
-    final wiz = wizards[wizIndex];
-    if (wiz.isSpirit) return false;
+  // --- AZIONI E TURNI ---
+  bool canWizardCast(int wizIdx, Spell spell) {
+    final wiz = wizards[wizIdx];
     return ManaEngine.canAfford([...wiz.currentRoll, ...wiz.savedDice], spell.cost);
   }
 
-  void castSpell(Spell spell, int wizIndex) {
-    if (wizIndex != activeWizardIndex) return;
-    final wiz = wizards[wizIndex];
-    if (!canWizardCast(wizIndex, spell)) return;
+  void castSpell(Spell spell, int wizIdx) {
+    if (wizIdx != activeWizardIndex || currentPhase != GamePhase.playerActions) return;
+    final wiz = wizards[wizIdx];
+    if (wiz.actions <= 0 || !canWizardCast(wizIdx, spell)) return;
 
     _transferManaToOverlord(wiz, spell.cost);
-    addLog("INFO", "🔮 ${wiz.className} lancia ${spell.name}.");
-
-    for (var eff in spell.effects) { _resolveEffect(eff, wizIndex); }
+    wiz.actions -= 1;
+    
+    int val = ((spell.effects[0]['value'] ?? 0) as num).toInt();
+    int d = CombatEngine.calculateDamage(val, boss.defense);
+    boss.hp -= d;
+    
+    addLog("DMG", "💥 ${spell.name}: -$d HP.");
+    if (boss.hp <= 0 && boss.phase == 1) boss.nextPhase();
     notifyListeners();
   }
 
@@ -184,33 +134,72 @@ class GameProvider extends ChangeNotifier {
     cost.forEach((color, amount) {
       if (color == 'ANY') return;
       for (int i = 0; i < amount; i++) {
-        String die;
-        if (wiz.currentRoll.contains(color)) {
-          die = color; wiz.currentRoll.remove(color);
-        } else if (wiz.savedDice.contains(color)) {
-          die = color; wiz.savedDice.remove(color);
-        } else {
-          die = 'K'; 
-          if (!wiz.currentRoll.remove('K')) wiz.savedDice.remove('K');
-        }
-        overlordManaPool[die] = (overlordManaPool[die] ?? 0) + 1; //
+        String die = wiz.currentRoll.contains(color) ? color : (wiz.savedDice.contains(color) ? color : 'K');
+        if (!wiz.currentRoll.remove(die)) wiz.savedDice.remove(die);
+        boss.addMana(die, 1);
       }
     });
+    if (cost.containsKey('ANY')) {
+      for (int i = 0; i < cost['ANY']!; i++) {
+        String die = wiz.currentRoll.isNotEmpty ? wiz.currentRoll.removeAt(0) : wiz.savedDice.removeAt(0);
+        boss.addMana(die, 1);
+      }
+    }
   }
 
-  void _resolveEffect(Map<String, dynamic> eff, int wizIndex) {
-    final int val = ((eff['value'] ?? 0) as num).toInt();
-    if (eff['type'] == 'damage') {
-      int d = CombatEngine.calculateDamage(val, monsterDefense);
-      monsterHp -= d;
-      addLog("DMG", "Danno: -$d HP.");
+  // --- LOGICA OVERLORD ---
+  bool canMonsterAfford(MonsterAbility ability) {
+    List<String> bossPool = [];
+    boss.manaPool.forEach((color, count) {
+      for (int i = 0; i < count; i++) bossPool.add(color);
+    });
+    return ManaEngine.canAfford(bossPool, ability.cost);
+  }
+
+  void executeMonsterAbility(MonsterAbility ability) {
+    if (currentPhase != GamePhase.overlordReaction) return;
+    if (!canMonsterAfford(ability)) return;
+
+    ability.cost.forEach((color, amount) {
+      for (int i = 0; i < amount; i++) {
+        String keyToConsume = color == 'ANY' 
+            ? boss.manaPool.keys.firstWhere((k) => boss.manaPool[k]! > 0)
+            : (boss.manaPool[color]! > 0 ? color : 'K');
+        boss.manaPool[keyToConsume] = boss.manaPool[keyToConsume]! - 1;
+      }
+    });
+    addLog("OVERLORD", "🌩️ Boss usa ${ability.name}");
+    notifyListeners();
+  }
+
+  void endPlayerTurn() {
+    currentPhase = GamePhase.overlordReaction;
+    notifyListeners();
+  }
+
+  void concludeOverlordReaction() {
+    if (activeWizardIndex < wizards.length - 1) {
+      activeWizardIndex++;
+      currentPhase = GamePhase.playerRoll;
+      wizards[activeWizardIndex].actions = 2;
+    } else {
+      _runMaintenance();
     }
-    if (monsterHp < 0) monsterHp = 0;
+    notifyListeners();
+  }
+
+  void _runMaintenance() {
+    activeWizardIndex = 0;
+    overlordTokens += 1;
+    boss.addMana('K', 2); 
+    for (var wiz in wizards) { wiz.actions = 2; }
+    currentPhase = GamePhase.playerRoll;
+    addLog("ROUND", "Fine Round. Overlord +1 ⌛.");
+    notifyListeners();
   }
 
   void addLog(String type, String msg) {
     logs.insert(0, {"type": type, "msg": msg});
-    if (logs.length > 25) logs.removeLast();
     notifyListeners();
   }
 }
